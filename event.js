@@ -13,8 +13,8 @@ exports.Event = class Event {
     };
 
     addEventList(opening, recurring, startDate, endDate) {
-        startDate = moment(startDate, "YYYY-MM-DD").format("DD/MM/YYYY HH:mm");
-        endDate = moment(endDate, "YYYY-MM-DD").format("DD/MM/YYYY HH:mm")
+        startDate = moment(startDate, "YYYY-MM-DD").format("YYYY-MM-DD HH:mm");
+        endDate = moment(endDate, "YYYY-MM-DD").format("YYYY-MM-DD HH:mm")
         callsAddEnventList++;
         if (opening === true) {
             if (recurring === true) {
@@ -45,8 +45,19 @@ exports.Event = class Event {
         this.createSentence(allDatesAvailable);
     }
 
-    recoverAvalaibleDatesRecurring(array, arrayValidates, fromDate, toDate) {
-        
+    recoverAvalaibleDatesRecurring(openDatesRecurring, allDatesAvailable, fromDate, toDate) {
+        openDatesRecurring.forEach(function(startDate, TypeDate) {
+            if (TypeDate.substr(0, 3) == "Sta") {
+                console.log("Start Date => ", startDate);
+                let numberDate = TypeDate.substr(5,6);
+                let thisEndDate = openDatesRecurring.get("End" + numberDate);
+                
+                if (moment(startDate).isSame(thisEndDate, 'day')) {
+                    thisEndDate = moment(startDate).hours(17).minutes(0);
+                    console.log(thisEndDate);
+                }   
+            }
+        })
     }
 
     recoverAvalaibleDatesUniques(array, arrayValidates, fromDate, toDate) {
@@ -59,6 +70,12 @@ exports.Event = class Event {
 
     removeInavailableDatesUniques(array, arrayValidates) {
 
+    }
+
+    addHoursToDate(startDate, thisEndDate) {
+        while(moment(startDate,  "YY/MM/YYYY").getHours) {
+            
+        }
     }
 
     createSentence(array) {
