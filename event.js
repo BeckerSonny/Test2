@@ -52,7 +52,7 @@ exports.Event = class Event {
                 let numberDate = TypeDate.substr(5,6);
                 let thisEndDate = openDatesRecurring.get("End" + numberDate);
                 
-                if (moment(startDate).isSame(thisEndDate, 'day')) {
+                if (!moment(startDate).isSame(thisEndDate, 'day')) {
                     thisEndDate = moment(startDate).hours(17).minutes(0);
                     console.log(thisEndDate);
                 }   
