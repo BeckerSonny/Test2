@@ -34,34 +34,80 @@ exports.Event = class Event {
                 closeDatesUniques.set("End" + callsAddEnventList, endDate);
             }
         }
-        console.log("OpenDates ==> ", openDatesRecurring);
+        //console.log("OpenDates ==> ", openDatesRecurring);
     }
 
     availabilities(fromDate, toDate) {
-        allDatesAvailable = this.recoverAvalaibleDatesRecurring(openDatesRecurring, allDatesAvailable, fromDate, toDate);
-        allDatesAvailable = this.recoverAvalaibleDatesUniques(openDatesUniques, allDatesAvailable, fromDate, toDate);
-        allDatesAvailable = this.removeInavailableDatesRecuring(closeDatesRecurring, allDatesAvailable, toDate);
-        allDatesAvailable = this.removeInavailableDatesUniques(closeDatesUniques, allDatesAvailable);
-        this.createSentence(allDatesAvailable);
+        fromDate = moment(fromDate, "YYYY-MM-DD").format("YYYY-MM-DD HH:mm");
+        toDate = moment(toDate, "YYYY-MM-DD").format("YYYY-MM-DD HH:mm")
+        this.recoverAvalaibleDatesRecurring(openDatesRecurring, allDatesAvailable, fromDate, toDate);
+        this.recoverAvalaibleDatesUniques(openDatesUniques, allDatesAvailable, fromDate, toDate);
+        //allDatesAvailable = this.removeInavailableDatesRecuring(closeDatesRecurring, allDatesAvailable, toDate);
+        //allDatesAvailable = this.removeInavailableDatesUniques(closeDatesUniques, allDatesAvailable);
+        console.log("Available dates ==> ", allDatesAvailable);
     }
 
     recoverAvalaibleDatesRecurring(openDatesRecurring, allDatesAvailable, fromDate, toDate) {
         openDatesRecurring.forEach(function(startDate, TypeDate) {
-            if (TypeDate.substr(0, 3) == "Sta") {
-                console.log("Start Date => ", startDate);
-                let numberDate = TypeDate.substr(5,6);
-                let thisEndDate = openDatesRecurring.get("End" + numberDate);
-                
-                if (!moment(startDate).isSame(thisEndDate, 'day')) {
-                    thisEndDate = moment(startDate).hours(17).minutes(0);
-                    console.log(thisEndDate);
-                }   
+            let manyDays = false;
+            if (TypeDate.substr(0, 5) == "Start") {
+                let todayEndDate = openDatesRecurring.get("End" + TypeDate.substr(5,6));
+                let workDate = startDate;
+                while(moment(workDate).isSameOrBefore(toDate)) {
+                    /* console.log("Start date ==> ", workDate);
+                    console.log("from Date ==> ", fromDate);
+                    console.log("Condition 1 ===> ", moment(workDate).isSameOrAfter(fromDate)); */
+                    if (moment(workDate).isSameOrBefore(toDate) && moment(workDate).isSameOrAfter(fromDate)) {
+                        console.log("Start Date => ", workDate);
+                        if (!moment(workDate).isSame(todayEndDate, 'day')) {
+                            todayEndDate = moment(workDate).hours(17).minutes(0);
+                            manyDays = true;
+                        }
+                        /* console.log('\n');
+                        console.log('Today end date ===> ', todayEndDate);
+                        console.log('\n'); */
+                        allDatesAvailable.set(workDate, todayEndDate);
+                    }
+                    if (manyDays && moment(moment(workDate).add(1, 'days')).isSameOrBefore(todayEndDate)) {
+                        workDate = moment(workDate).add(1, "days");
+                    } else {
+                        manyDays = false;
+                    }
+                    workDate = moment(workDate).add(7, "days");
+                    todayEndDate = moment(todayEndDate).add(7, "days");
+                    //console.log("Else start date ==> ", workDate)
+                }
             }
+            //console.log('Coucou ==> ', allDatesAvailable);
         })
     }
 
     recoverAvalaibleDatesUniques(array, arrayValidates, fromDate, toDate) {
-
+        openDatesRecurring.forEach(function(startDate, TypeDate) {
+            if (TypeDate.substr(0, 5) == "Start") {
+                let todayEndDate = openDatesRecurring.get("End" + TypeDate.substr(5,6));
+                let workDate = startDate;
+                while(moment(workDate).isSameOrBefore(toDate)) {
+                    /* console.log("Start date ==> ", workDate);
+                    console.log("from Date ==> ", fromDate);
+                    console.log("Condition 1 ===> ", moment(workDate).isSameOrAfter(fromDate)); */
+                    if (moment(workDate).isSameOrBefore(toDate) && moment(workDate).isSameOrAfter(fromDate)) {
+                        console.log("Start Date => ", workDate);
+                        if (!moment(workDate).isSame(todayEndDate, 'day')) {
+                            todayEndDate = moment(workDate).hours(17).minutes(0);
+                            manyDays = true;
+                        }
+                        /* console.log('\n');
+                        console.log('Today end date ===> ', todayEndDate);
+                        console.log('\n'); */
+                        allDatesAvailable.set(workDate, todayEndDate);
+                    }
+                    workDate = moment(workDate).add(1, "days");
+                    //console.log("Else start date ==> ", workDate)
+                }
+            }
+            //console.log('Coucou ==> ', allDatesAvailable);
+        })
     }
 
     removeInavailableDatesRecuring(array, arrayValidates, toDate) {
@@ -72,13 +118,13 @@ exports.Event = class Event {
 
     }
 
-    addHoursToDate(startDate, thisEndDate) {
+    addHoursToDate(startDate, thisEndDate, allDatesAvailable) {
         while(moment(startDate,  "YY/MM/YYYY").getHours) {
             
         }
     }
 
-    createSentence(array) {
+    /* createSentence(array) {
         let sentence = "We are available :";
         for(let key in array) {
             let keyTmp = parseInt(key);
@@ -107,7 +153,7 @@ exports.Event = class Event {
             }
         }
         console.log(sentence);
-    }
+    } */
 };
 
 exports.Event;
