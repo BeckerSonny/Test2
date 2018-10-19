@@ -58,7 +58,7 @@ exports.Event = class Event {
                     console.log("from Date ==> ", fromDate);
                     console.log("Condition 1 ===> ", moment(workDate).isSameOrAfter(fromDate)); */
                     if (moment(workDate).isSameOrBefore(toDate) && moment(workDate).isSameOrAfter(fromDate)) {
-                        console.log("Start Date => ", workDate);
+                        //console.log("Start Date => ", workDate);
                         if (!moment(workDate).isSame(todayEndDate, 'day')) {
                             todayEndDate = moment(workDate).hours(17).minutes(0);
                             manyDays = true;
@@ -82,28 +82,27 @@ exports.Event = class Event {
         })
     }
 
-    recoverAvalaibleDatesUniques(array, arrayValidates, fromDate, toDate) {
-        openDatesRecurring.forEach(function(startDate, TypeDate) {
+    recoverAvalaibleDatesUniques(openDatesUniques, allDatesAvailable, fromDate, toDate) {
+        openDatesUniques.forEach(function(startDate, TypeDate) {
             if (TypeDate.substr(0, 5) == "Start") {
-                let todayEndDate = openDatesRecurring.get("End" + TypeDate.substr(5,6));
+                let todayEndDate = openDatesUniques.get("End" + TypeDate.substr(5,6));
                 let workDate = startDate;
-                while(moment(workDate).isSameOrBefore(toDate)) {
-                    /* console.log("Start date ==> ", workDate);
+                while(moment(workDate).isSameOrBefore(openDatesUniques.get("End" + TypeDate.substr(5,6)), 'days')) {
+                    console.log("Start date ==> ", workDate);
                     console.log("from Date ==> ", fromDate);
-                    console.log("Condition 1 ===> ", moment(workDate).isSameOrAfter(fromDate)); */
+                    console.log("Condition 1 ===> ", moment(workDate).isSameOrAfter(fromDate));
                     if (moment(workDate).isSameOrBefore(toDate) && moment(workDate).isSameOrAfter(fromDate)) {
                         console.log("Start Date => ", workDate);
                         if (!moment(workDate).isSame(todayEndDate, 'day')) {
                             todayEndDate = moment(workDate).hours(17).minutes(0);
-                            manyDays = true;
                         }
                         /* console.log('\n');
                         console.log('Today end date ===> ', todayEndDate);
                         console.log('\n'); */
-                        allDatesAvailable.set(workDate, todayEndDate);
+                        allDatesAvailable.set(moment(workDate), moment(todayEndDate));
                     }
                     workDate = moment(workDate).add(1, "days");
-                    //console.log("Else start date ==> ", workDate)
+                    todayEndDate = openDatesUniques.get("End" + TypeDate.substr(5,6));
                 }
             }
             //console.log('Coucou ==> ', allDatesAvailable);
