@@ -140,6 +140,10 @@ class Event {
             if (dateSave === "" || !moment(dateSave).isSame(hoursAvailable, 'days')) {
                 sentence += "\n The " + moment(hoursAvailable).format("DD/MM/YYYY") + " at " + moment(hoursAvailable).format("HH:mm");
                 dateSave = moment(hoursAvailable);
+            } else if (!moment(allHoursAvailable[allHoursAvailable.indexOf(hoursAvailable) + 1]).isSame(hoursAvailable, "days")) {
+                sentence += " and " + moment(hoursAvailable).format("HH:mm");
+            } else {
+                sentence += ", " + moment(hoursAvailable).format("HH:mm");
             }
         });
         console.log(sentence);
