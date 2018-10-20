@@ -55,7 +55,7 @@ class Event {
             if (TypeDate.substr(0, 5) == "Start") {
                 let todayEndDate = openDatesRecurring.get("End" + TypeDate.substr(5,6));
                 let workDate = startDate;
-                while(moment(workDate).isSameOrBefore(toDate)) {
+                while (moment(workDate).isSameOrBefore(toDate)) {
                     if (moment(workDate).isSameOrBefore(toDate) && moment(workDate).isSameOrAfter(fromDate)) {
                         if (!moment(workDate).isSame(todayEndDate, 'day')) {
                             todayEndDate = moment(workDate).hours(17).minutes(0);
@@ -80,7 +80,7 @@ class Event {
             if (TypeDate.substr(0, 5) == "Start") {
                 let todayEndDate = openDatesUniques.get("End" + TypeDate.substr(5,6));
                 let workDate = startDate;
-                while (moment(workDate).isSameOrBefore(openDatesUniques.get("End" + TypeDate.substr(5,6)), 'days')) {
+                while  (moment(workDate).isSameOrBefore(openDatesUniques.get("End" + TypeDate.substr(5,6)), 'days')) {
                     if (moment(workDate).isSameOrBefore(toDate) && moment(workDate).isSameOrAfter(fromDate)) {
                         if (!moment(workDate).isSame(todayEndDate, 'day')) {
                             todayEndDate = moment(workDate).hours(17).minutes(0);
@@ -95,19 +95,16 @@ class Event {
     }
 
     createAllHoursAvailable(allDatesAvailable) {
-        console.log(allDatesAvailable);
-        allDatesAvailable.forEach(function(startDate, TypeDate) {
-        
+        allDatesAvailable.forEach(function(endDateAvailable, startDateAvailable) {
+            allHoursAvailable = functions.completeAllHoursAvailable(startDateAvailable, endDateAvailable, allHoursAvailable);
         });
     }
 
     removeInavailableDatesRecuring(closeDatesRecurring, allDatesAvailable, toDate) {
         allDatesAvailable.forEach(function(endDateAvailable, earlyDateAvailable) {
-            closeDatesRecurring.forEach(function(startDate, TypeDate) {
-                if (moment(earlyDateAvailable).isSame(startDate, 'days') && TypeDate.substr(0, 5) == "Start") {
-                    allHoursAvailable = functions.completeAllHoursAvailableRecurringWithDelete(earlyDateAvailable, startDate, closeDatesRecurring.get("End" + TypeDate.substr(5,6)), endDateAvailable, toDate, allHoursAvailable);
-                } else if (TypeDate.substr(0, 5) == "Start") {
-                    allHoursAvailable = functions.completeAllHoursAvailableRecurring(earlyDateAvailable, endDateAvailable, toDate, allHoursAvailable);
+            closeDatesRecurring.forEach(function(startDateDelete, TypeDate) {
+                if (moment(earlyDateAvailable).isSame(startDateDelete, 'days') && TypeDate.substr(0, 5) == "Start") {
+                    allHoursAvailable = functions.removeAllHoursInvailableRecurring(startDateDelete, closeDatesRecurring.get("End" + TypeDate.substr(5,6)), toDate, allHoursAvailable);
                 }
             });
         });
