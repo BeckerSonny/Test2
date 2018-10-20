@@ -45,7 +45,7 @@ class Event {
         this.recoverAvalaibleDatesRecurring(openDatesRecurring, allDatesAvailable, fromDate, toDate);
         this.recoverAvalaibleDatesUniques(openDatesUniques, allDatesAvailable, fromDate, toDate);
         this.removeInavailableDatesRecuring(closeDatesRecurring, allDatesAvailable, toDate);
-        //this.removeInavailableDatesUniques(closeDatesUniques, allDatesAvailable);
+        this.removeInavailableDatesUniques(closeDatesUniques, allDatesAvailable);
         console.log("Available dates ==> ", allDatesAvailable);
         console.log("End Hours ==> ", allHoursAvailable);
     }
@@ -92,7 +92,7 @@ class Event {
                 let workDate = startDate;
                 while (moment(workDate).isSameOrBefore(openDatesUniques.get("End" + TypeDate.substr(5,6)), 'days')) {
                     if (moment(workDate).isSameOrBefore(toDate) && moment(workDate).isSameOrAfter(fromDate)) {
-                        console.log("Start Date => ", workDate);
+                        //console.log("Start Date => ", workDate);
                         if (!moment(workDate).isSame(todayEndDate, 'day')) {
                             todayEndDate = moment(workDate).hours(17).minutes(0);
                         }
@@ -125,10 +125,8 @@ class Event {
     removeInavailableDatesUniques(closeDatesUniques, allDatesAvailable) {
         allDatesAvailable.forEach(function(endDateAvailable, earlyDateAvailable) {
             closeDatesUniques.forEach(function(startDate, TypeDate) {
-                if (moment(earlyDateAvailable).isSame(startDate, 'days') && TypeDate.substr(0, 5) == "Start") {
-                    allHoursAvailable = functions.completeAllHoursAvailableWithDelete(earlyDateAvailable, startDate, closeDatesRecurring.get("End" + TypeDate.substr(5,6)), endDateAvailable, allHoursAvailable);
-                } else if (TypeDate.substr(0, 5) == "Start") {
-                    allHoursAvailable = functions.completeAllHoursAvailable(earlyDateAvailable, endDateAvailable, allHoursAvailable);
+                if (TypeDate.substr(0, 5) == "Start") {
+                    allHoursAvailable = functions.removeAllHoursInavailable(startDate, closeDatesUniques.get("End" + TypeDate.substr(5,6)), allHoursAvailable);
                 }
             });
         });
