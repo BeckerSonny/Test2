@@ -36,7 +36,6 @@ class Event {
                 closeDatesUniques.set("End" + callsAddEnventList, endDate);
             }
         }
-        //console.log("OpenDates ==> ", openDatesRecurring);
     }
 
     availabilities(fromDate, toDate) {
@@ -46,8 +45,6 @@ class Event {
         this.recoverAvalaibleDatesUniques(openDatesUniques, allDatesAvailable, fromDate, toDate);
         this.removeInavailableDatesRecuring(closeDatesRecurring, allDatesAvailable, toDate);
         this.removeInavailableDatesUniques(closeDatesUniques, allDatesAvailable);
-        console.log("Available dates ==> ", allDatesAvailable);
-        console.log("End Hours ==> ", allHoursAvailable);
         this.createSentence(allHoursAvailable);
     }
 
@@ -58,18 +55,11 @@ class Event {
                 let todayEndDate = openDatesRecurring.get("End" + TypeDate.substr(5,6));
                 let workDate = startDate;
                 while(moment(workDate).isSameOrBefore(toDate)) {
-                    /* console.log("Start date ==> ", workDate);
-                    console.log("from Date ==> ", fromDate);
-                    console.log("Condition 1 ===> ", moment(workDate).isSameOrAfter(fromDate)); */
                     if (moment(workDate).isSameOrBefore(toDate) && moment(workDate).isSameOrAfter(fromDate)) {
-                        //console.log("Start Date => ", workDate);
                         if (!moment(workDate).isSame(todayEndDate, 'day')) {
                             todayEndDate = moment(workDate).hours(17).minutes(0);
                             manyDays = true;
                         }
-                        /* console.log('\n');
-                        console.log('Today end date ===> ', todayEndDate);
-                        console.log('\n'); */
                         allDatesAvailable.set(moment(workDate), moment(todayEndDate));
                     }
                     if (manyDays && moment(moment(workDate).add(1, 'days')).isSameOrBefore(todayEndDate)) {
@@ -79,10 +69,8 @@ class Event {
                     }
                     workDate = moment(workDate).add(7, "days");
                     todayEndDate = moment(todayEndDate).add(7, "days");
-                    //console.log("Else start date ==> ", workDate)
                 }
             }
-            //console.log('Coucou ==> ', allDatesAvailable);
         })
     }
 
@@ -93,20 +81,15 @@ class Event {
                 let workDate = startDate;
                 while (moment(workDate).isSameOrBefore(openDatesUniques.get("End" + TypeDate.substr(5,6)), 'days')) {
                     if (moment(workDate).isSameOrBefore(toDate) && moment(workDate).isSameOrAfter(fromDate)) {
-                        //console.log("Start Date => ", workDate);
                         if (!moment(workDate).isSame(todayEndDate, 'day')) {
                             todayEndDate = moment(workDate).hours(17).minutes(0);
                         }
-                        /* console.log('\n');
-                        console.log('Today end date ===> ', todayEndDate);
-                        console.log('\n'); */
                         allDatesAvailable.set(moment(workDate), moment(todayEndDate));
                     }
                     workDate = moment(workDate).add(1, "days");
                     todayEndDate = openDatesUniques.get("End" + TypeDate.substr(5,6));
                 }
             }
-            //console.log('Coucou ==> ', allDatesAvailable);
         })
     }
 
@@ -134,7 +117,7 @@ class Event {
     }
 
     createSentence(allHoursAvailable) {
-        let sentence = "We are available :";
+        let sentence = "\nWe are available :";
         let dateSave = "";
         allHoursAvailable.forEach(hoursAvailable => {
             if (dateSave === "" || !moment(dateSave).isSame(hoursAvailable, 'days')) {
@@ -146,6 +129,7 @@ class Event {
                 sentence += ", " + moment(hoursAvailable).format("HH:mm");
             }
         });
+        sentence += "\n We are not available any other time !\n";
         console.log(sentence);
     }
 };

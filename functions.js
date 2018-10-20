@@ -6,7 +6,7 @@ function completeAllHoursAvailableRecurringWithDelete(earlyDateAvailable, startD
         let newEarlyDateAvailable = earlyDateAvailable;
         while (moment(newEarlyDateAvailable).isBefore(moment(endDateAvailable))) {
             if (moment(newEarlyDateAvailable).isBefore(moment(startDateDelete)) ||
-            (moment(newEarlyDateAvailable).isAfter(moment(endDateDelete)))) {
+            (moment(newEarlyDateAvailable).isAfter(moment(endDateDelete).add(30, 'minutes')))) {
                 allHoursAvailable.push(moment(newEarlyDateAvailable, "YYYY-MM-DD"));
             }
             newEarlyDateAvailable = moment(newEarlyDateAvailable).add(30, 'minutes');
@@ -32,19 +32,9 @@ function completeAllHoursRecurringAvailable(earlyDateAvailable, endDateAvailable
     return allHoursAvailable;
 }
 
-exports.completeAllHoursAvailable =
-function completeAllHoursAvailable(earlyDateAvailable, endDateAvailable, allHoursAvailable) {
-    while (moment(earlyDateAvailable).isBefore(moment(endDateAvailable))) {
-        allHoursAvailable.set(moment(earlyDateAvailable, "YYYY-MM-DD"), moment(earlyDateAvailable).hours() + ":" + moment(earlyDateAvailable).minutes());
-        earlyDateAvailable = moment(earlyDateAvailable).add(30, 'minutes');
-    }
-    return allHoursAvailable;
-}
-
 exports.removeAllHoursInavailable =
 function removeAllHoursInavailable(startDateDelete, endDateDelete, allHoursAvailable) {
-    while (moment(startDateDelete).isSameOrBefore(moment(endDateDelete))) {
-        //console.log("get hours ==> ", allHoursAvailable);
+    while (moment(startDateDelete).isSameOrBefore(moment(endDateDelete).add(30, 'minutes'))) {
         allHoursAvailable.forEach(dateAvailable => {
             if (moment(dateAvailable).isSame(moment(startDateDelete))) {
                 allHoursAvailable.splice(allHoursAvailable.indexOf(dateAvailable), 1);
