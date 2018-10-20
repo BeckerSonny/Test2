@@ -43,6 +43,7 @@ class Event {
         toDate = moment(toDate, "YYYY-MM-DD").format("YYYY-MM-DD HH:mm")
         this.recoverAvalaibleDatesRecurring(openDatesRecurring, allDatesAvailable, fromDate, toDate);
         this.recoverAvalaibleDatesUniques(openDatesUniques, allDatesAvailable, fromDate, toDate);
+        this.createAllHoursAvailable(allDatesAvailable);
         this.removeInavailableDatesRecuring(closeDatesRecurring, allDatesAvailable, toDate);
         this.removeInavailableDatesUniques(closeDatesUniques, allDatesAvailable);
         this.createSentence(allHoursAvailable);
@@ -91,6 +92,13 @@ class Event {
                 }
             }
         })
+    }
+
+    createAllHoursAvailable(allDatesAvailable) {
+        console.log(allDatesAvailable);
+        allDatesAvailable.forEach(function(startDate, TypeDate) {
+        
+        });
     }
 
     removeInavailableDatesRecuring(closeDatesRecurring, allDatesAvailable, toDate) {
