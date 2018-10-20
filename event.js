@@ -3,7 +3,7 @@ var openDatesUniques = new Map;
 var closeDatesRecurring = new Map;
 var closeDatesUniques = new Map;
 var allDatesAvailable = new Map;
-var allHoursAvailable = new Map;
+var allHoursAvailable = [];
 var callsAddEnventList = 0;
 
 const functions = require('./functions.js')
@@ -48,6 +48,7 @@ class Event {
         this.removeInavailableDatesUniques(closeDatesUniques, allDatesAvailable);
         console.log("Available dates ==> ", allDatesAvailable);
         console.log("End Hours ==> ", allHoursAvailable);
+        this.createSentence(allHoursAvailable);
     }
 
     recoverAvalaibleDatesRecurring(openDatesRecurring, allDatesAvailable, fromDate, toDate) {
@@ -132,42 +133,17 @@ class Event {
         });
     }
 
-    addHoursToDate(startDate, thisEndDate, allDatesAvailable) {
-        while(moment(startDate,  "YY/MM/YYYY").getHours) {
-            
-        }
-    }
-
-    /* createSentence(array) {
+    createSentence(allHoursAvailable) {
         let sentence = "We are available :";
-        for(let key in array) {
-            let keyTmp = parseInt(key);
-            let MinutesEarly = array[key].getMinutes();;
-            if (MinutesEarly == 0) {
-                MinutesEarly += "0";
+        let dateSave = "";
+        allHoursAvailable.forEach(hoursAvailable => {
+            if (dateSave === "" || !moment(dateSave).isSame(hoursAvailable, 'days')) {
+                sentence += "\n The " + moment(hoursAvailable).format("DD/MM/YYYY") + " at " + moment(hoursAvailable).format("HH:mm");
+                dateSave = moment(hoursAvailable);
             }
-            if (array[keyTmp + 1] != undefined) {
-                var MinutesEnd = array[keyTmp + 1].getMinutes();
-                if (MinutesEnd == 0) {
-                    MinutesEnd += "0";
-                }
-            }
-            if (Number.isInteger(key / 2)) {
-                if (array[keyTmp - 1] != undefined &&
-                array[keyTmp - 1].getDate() == array[key].getDate() &&
-                array[keyTmp - 1].getMonth() == array[key].getMonth()) {
-                    sentence += " and" 
-                } else {
-                    sentence += "\nThe " + array[key].getDate() + "/" + array[key].getMonth() + "/" + array[key].getFullYear();
-                }
-                sentence  += " from " + array[key].getHours() + ":" + MinutesEarly + " to " + array[keyTmp + 1].getHours() + ":" + MinutesEnd;
-                if (array[keyTmp + 2] == undefined) {
-                    sentence += ".";
-                }
-            }
-        }
+        });
         console.log(sentence);
-    } */
+    }
 };
 
 exports.Event = new Event;
