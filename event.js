@@ -1,56 +1,47 @@
-var openDatesRecurring = new Map;
-var openDatesUniques = new Map;
-var closeDatesRecurring = new Map;
-var closeDatesUniques = new Map;
-var allDatesAvailable = new Map;
-var allHoursAvailable = [];
-var callsAddEnventList = 0;
-
-const functions = require('./functions.js')
+const functions = require('./functions.js');
 const moment = require('moment');
 
 class Event {
     constructor() {
-
+        this.openDatesRecurring = new Map;
+        this.openDates = new Map;
+        this.closeDates = new Map;
+        this.allDatesAvailable = new Map;
+        this.allHoursAvailable = [];
+        this.callsAddEnventList = 0;
     };
 
     addEventList(opening, recurring, startDate, endDate) {
+
         startDate = moment(startDate, "YYYY-MM-DD").format("YYYY-MM-DD HH:mm");
         endDate = moment(endDate, "YYYY-MM-DD").format("YYYY-MM-DD HH:mm")
-        callsAddEnventList++;
+        this.callsAddEnventList++;
         if (opening === true) {
             if (recurring === true) {
-                openDatesRecurring.set("Start" + callsAddEnventList, startDate);
-                openDatesRecurring.set("End" + callsAddEnventList, endDate);
+                this.openDatesRecurring .set("Start" + this.callsAddEnventList, startDate);
+                this.openDatesRecurring .set("End" + this.callsAddEnventList, endDate);
             } else {
-                openDatesUniques.set("Start" + callsAddEnventList, startDate);
-                openDatesUniques.set("End" + callsAddEnventList, endDate);
+                this.openDates.set("Start" + this.callsAddEnventList, startDate);
+                this.openDates.set("End" + this.callsAddEnventList, endDate);
             }
         } else {
-            if (recurring === true) {
-                closeDatesRecurring.set("Start" + callsAddEnventList, startDate);
-                closeDatesRecurring.set("End" + callsAddEnventList, endDate);
-
-            } else {
-                closeDatesUniques.set("Start" + callsAddEnventList, startDate);
-                closeDatesUniques.set("End" + callsAddEnventList, endDate);
-            }
+            this.closeDates .set("Start" + this.callsAddEnventList, startDate);
+            this.closeDates .set("End" + this.callsAddEnventList, endDate);
         }
     }
 
     availabilities(fromDate, toDate) {
         fromDate = moment(fromDate, "YYYY-MM-DD").format("YYYY-MM-DD HH:mm");
         toDate = moment(toDate, "YYYY-MM-DD").format("YYYY-MM-DD HH:mm")
-        this.recoverAvalaibleDatesRecurring(openDatesRecurring, allDatesAvailable, fromDate, toDate);
-        this.recoverAvalaibleDatesUniques(openDatesUniques, allDatesAvailable, fromDate, toDate);
-        this.createAllHoursAvailable(allDatesAvailable);
-        this.removeInavailableDatesRecuring(closeDatesRecurring, allDatesAvailable, toDate);
-        this.removeInavailableDatesUniques(closeDatesUniques, allDatesAvailable);
-        this.createSentence(allHoursAvailable);
+        this.recoverAvalaibleDatesRecurring(this.openDatesRecurring , this.allDatesAvailable, fromDate, toDate);
+        this.recoverAvalaibleDatesUniques(this.openDatesUniques, this.allDatesAvailable, fromDate, toDate);
+        this.allHoursAvailable = this.createAllHoursAvailable(this.allDatesAvailable, this.allHoursAvailable);
+        this.allHoursAvailable = this.removeCloseDates(this.closeDates , this.allHoursAvailable);
+        this.createSentence(this.allHoursAvailable);
     }
 
     recoverAvalaibleDatesRecurring(openDatesRecurring, allDatesAvailable, fromDate, toDate) {
-        openDatesRecurring.forEach(function(startDate, TypeDate) {
+        openDatesRecurring .forEach(function(startDate, TypeDate) {
             let manyDays = false;
             if (TypeDate.substr(0, 5) == "Start") {
                 let todayEndDate = openDatesRecurring.get("End" + TypeDate.substr(5,6));
@@ -94,31 +85,21 @@ class Event {
         })
     }
 
-    createAllHoursAvailable(allDatesAvailable) {
+    createAllHoursAvailable(allDatesAvailable, allHoursAvailable) {
         allDatesAvailable.forEach(function(endDateAvailable, startDateAvailable) {
             allHoursAvailable = functions.completeAllHoursAvailable(startDateAvailable, endDateAvailable, allHoursAvailable);
         });
+        return allHoursAvailable;
     }
 
-    removeInavailableDatesRecuring(closeDatesRecurring, allDatesAvailable, toDate) {
-        allDatesAvailable.forEach(function(endDateAvailable, earlyDateAvailable) {
-            closeDatesRecurring.forEach(function(startDateDelete, TypeDate) {
-                if (moment(earlyDateAvailable).isSame(startDateDelete, 'days') && TypeDate.substr(0, 5) == "Start") {
-                    allHoursAvailable = functions.removeAllHoursInvailableRecurring(startDateDelete, closeDatesRecurring.get("End" + TypeDate.substr(5,6)), toDate, allHoursAvailable);
-                }
-            });
+    removeCloseDates(closeDates, allHoursAvailable) {
+        console.log(allHoursAvailable);
+        closeDates.forEach(function(startDate, TypeDate) {
+            if (TypeDate.substr(0, 5) == "Start") {
+                allHoursAvailable = functions.removeAllHoursInavailable(startDate, closeDates.get("End" + TypeDate.substr(5,6)), allHoursAvailable);
+            }
         });
-        
-    }
-
-    removeInavailableDatesUniques(closeDatesUniques, allDatesAvailable) {
-        allDatesAvailable.forEach(function(endDateAvailable, earlyDateAvailable) {
-            closeDatesUniques.forEach(function(startDate, TypeDate) {
-                if (TypeDate.substr(0, 5) == "Start") {
-                    allHoursAvailable = functions.removeAllHoursInavailable(startDate, closeDatesUniques.get("End" + TypeDate.substr(5,6)), allHoursAvailable);
-                }
-            });
-        });
+        return allHoursAvailable;
     }
 
     createSentence(allHoursAvailable) {

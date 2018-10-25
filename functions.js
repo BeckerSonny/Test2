@@ -1,3 +1,4 @@
+
 const moment = require('moment');
 
 exports.completeAllHoursAvailable =
@@ -11,6 +12,17 @@ function completeAllHoursAvailable(startDateAvailable, endDateAvailable, allHour
 
 exports.removeAllHoursInavailable =
 function removeAllHoursInavailable(startDateDelete, endDateDelete, allHoursAvailable) {
+    allHoursAvailable = forOnDate(startDateDelete, endDateDelete, allHoursAvailable);
+    return allHoursAvailable;
+}
+
+// exports.removeAllHoursInvailableRecurring =
+// function removeAllHoursInvailableRecurring(startDateDelete, endDateDelete, toDate, allHoursAvailable) {
+//     
+//     return allHoursAvailable;
+// }
+
+function forOnDate(startDateDelete, endDateDelete, allHoursAvailable) {
     while (moment(startDateDelete).isSameOrBefore(moment(endDateDelete).add(30, 'minutes'))) {
         allHoursAvailable.forEach(dateAvailable => {
             if (moment(dateAvailable).isSame(moment(startDateDelete))) {
@@ -18,24 +30,6 @@ function removeAllHoursInavailable(startDateDelete, endDateDelete, allHoursAvail
             }
         });
         startDateDelete = moment(startDateDelete).add(30, 'minutes');
-    }
-    return allHoursAvailable;
-}
-
-exports.removeAllHoursInvailableRecurring =
-function removeAllHoursInvailableRecurring(startDateDelete, endDateDelete, toDate, allHoursAvailable) {
-    while (moment(startDateDelete).isSameOrBefore(toDate, 'days')) {
-        let saveStartDateDelete = startDateDelete;
-        while (moment(startDateDelete).isSameOrBefore(moment(endDateDelete).add(30, 'minutes'))) {
-            allHoursAvailable.forEach(dateAvailable => {
-                if (moment(dateAvailable).isSame(moment(startDateDelete))) {
-                    allHoursAvailable.splice(allHoursAvailable.indexOf(dateAvailable), 1);
-                }
-            });
-            startDateDelete = moment(startDateDelete).add(30, 'minutes');
-        }
-        startDateDelete = moment(saveStartDateDelete).add(7, 'days');
-        endDateDelete = moment(endDateDelete).add(7, 'days');
     }
     return allHoursAvailable;
 }
