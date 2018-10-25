@@ -19,4 +19,4 @@ Event.addEventList(false, false, startDate, endDate);
 var fromDate = new Date(2018,6,4,10,00);
 var toDate = new Date(2018,6,18,10,00);
 
-Event.availabilities(fromDate, toDate);
+Event.availabilities (fromDate, toDate);

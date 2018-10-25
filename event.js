@@ -1,6 +1,10 @@
 const functions = require('./functions.js');
 const moment = require('moment');
 
+// Modification des Tableaux
+// Suppression du recurring inavailable
+// Ajout d'un fonction pour le remplissage des dates (forOnDate)
+
 class Event {
     constructor() {
         this.openDatesRecurring = new Map;
@@ -8,7 +12,6 @@ class Event {
         this.closeDates = new Map;
         this.allDatesAvailable = new Map;
         this.allHoursAvailable = [];
-        this.callsAddEnventList = 0;
     };
 
     addEventList(opening, recurring, startDate, endDate) {
@@ -18,71 +21,36 @@ class Event {
         this.callsAddEnventList++;
         if (opening === true) {
             if (recurring === true) {
-                this.openDatesRecurring .set("Start" + this.callsAddEnventList, startDate);
-                this.openDatesRecurring .set("End" + this.callsAddEnventList, endDate);
+                this.openDatesRecurring.set(startDate, endDate);
             } else {
-                this.openDates.set("Start" + this.callsAddEnventList, startDate);
-                this.openDates.set("End" + this.callsAddEnventList, endDate);
+                this.openDates.set(startDate, endDate);
             }
         } else {
-            this.closeDates .set("Start" + this.callsAddEnventList, startDate);
-            this.closeDates .set("End" + this.callsAddEnventList, endDate);
+            this.closeDates.set(startDate, endDate);
         }
     }
 
     availabilities(fromDate, toDate) {
         fromDate = moment(fromDate, "YYYY-MM-DD").format("YYYY-MM-DD HH:mm");
         toDate = moment(toDate, "YYYY-MM-DD").format("YYYY-MM-DD HH:mm")
-        this.recoverAvalaibleDatesRecurring(this.openDatesRecurring , this.allDatesAvailable, fromDate, toDate);
-        this.recoverAvalaibleDatesUniques(this.openDatesUniques, this.allDatesAvailable, fromDate, toDate);
+        this.allDatesAvailable = this.recoverAvalaibleDates(this.openDatesRecurring, this.openDates, this.allDatesAvailable, fromDate, toDate);
         this.allHoursAvailable = this.createAllHoursAvailable(this.allDatesAvailable, this.allHoursAvailable);
         this.allHoursAvailable = this.removeCloseDates(this.closeDates , this.allHoursAvailable);
         this.createSentence(this.allHoursAvailable);
     }
 
-    recoverAvalaibleDatesRecurring(openDatesRecurring, allDatesAvailable, fromDate, toDate) {
-        openDatesRecurring .forEach(function(startDate, TypeDate) {
-            let manyDays = false;
-            if (TypeDate.substr(0, 5) == "Start") {
-                let todayEndDate = openDatesRecurring.get("End" + TypeDate.substr(5,6));
-                let workDate = startDate;
-                while (moment(workDate).isSameOrBefore(toDate)) {
-                    if (moment(workDate).isSameOrBefore(toDate) && moment(workDate).isSameOrAfter(fromDate)) {
-                        if (!moment(workDate).isSame(todayEndDate, 'day')) {
-                            todayEndDate = moment(workDate).hours(17).minutes(0);
-                            manyDays = true;
-                        }
-                        allDatesAvailable.set(moment(workDate), moment(todayEndDate));
-                    }
-                    if (manyDays && moment(moment(workDate).add(1, 'days')).isSameOrBefore(todayEndDate)) {
-                        workDate = moment(workDate).add(1, "days");
-                    } else {
-                        manyDays = false;
-                    }
-                    workDate = moment(workDate).add(7, "days");
-                    todayEndDate = moment(todayEndDate).add(7, "days");
-                }
+    recoverAvalaibleDates(openDatesRecurring, openDates, allDatesAvailable, fromDate, toDate) {
+        openDatesRecurring.forEach(function(endDate,startDate) {
+            while (moment(startDate).isSameOrBefore(toDate)) {
+                allDatesAvailable = functions.completeAllDateAvailable(allDatesAvailable, startDate, endDate, fromDate, toDate);
+                startDate = moment(startDate).add(7, "days");
+                endDate = moment(endDate).add(7, "days");
             }
         })
-    }
-
-    recoverAvalaibleDatesUniques(openDatesUniques, allDatesAvailable, fromDate, toDate) {
-        openDatesUniques.forEach(function(startDate, TypeDate) {
-            if (TypeDate.substr(0, 5) == "Start") {
-                let todayEndDate = openDatesUniques.get("End" + TypeDate.substr(5,6));
-                let workDate = startDate;
-                while  (moment(workDate).isSameOrBefore(openDatesUniques.get("End" + TypeDate.substr(5,6)), 'days')) {
-                    if (moment(workDate).isSameOrBefore(toDate) && moment(workDate).isSameOrAfter(fromDate)) {
-                        if (!moment(workDate).isSame(todayEndDate, 'day')) {
-                            todayEndDate = moment(workDate).hours(17).minutes(0);
-                        }
-                        allDatesAvailable.set(moment(workDate), moment(todayEndDate));
-                    }
-                    workDate = moment(workDate).add(1, "days");
-                    todayEndDate = openDatesUniques.get("End" + TypeDate.substr(5,6));
-                }
-            }
+        openDates.forEach(function(endDate,startDate) {
+            allDatesAvailable = functions.completeAllDateAvailable(allDatesAvailable, startDate, endDate, fromDate, toDate);
         })
+        return allDatesAvailable;
     }
 
     createAllHoursAvailable(allDatesAvailable, allHoursAvailable) {
@@ -93,11 +61,8 @@ class Event {
     }
 
     removeCloseDates(closeDates, allHoursAvailable) {
-        console.log(allHoursAvailable);
-        closeDates.forEach(function(startDate, TypeDate) {
-            if (TypeDate.substr(0, 5) == "Start") {
-                allHoursAvailable = functions.removeAllHoursInavailable(startDate, closeDates.get("End" + TypeDate.substr(5,6)), allHoursAvailable);
-            }
+        closeDates.forEach(function(endDateDelete, startDateDelete) {
+            allHoursAvailable = functions.removeAllHoursInavailable(startDateDelete, endDateDelete, allHoursAvailable);
         });
         return allHoursAvailable;
     }
@@ -115,7 +80,7 @@ class Event {
                 sentence += ", " + moment(hoursAvailable).format("HH:mm");
             }
         });
-        sentence += "\n We are not available any other time !\n";
+        sentence += "\nWe are not available any other time !\n";
         console.log(sentence);
     }
 };
